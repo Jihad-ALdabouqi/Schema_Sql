@@ -1,0 +1,138 @@
+CREATE SCHEMA sales;
+CREATE SCHEMA production;
+
+
+
+CREATE TABLE productions.categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE productions.products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(150) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    category_id INT NOT NULL,
+    FOREIGN KEY (category_id)
+        REFERENCES productions.categories(category_id)
+);
+
+CREATE TABLE sales.customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sales.orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id)
+        REFERENCES sales.customers(customer_id)
+);
+
+CREATE TABLE sales.order_items (
+    order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id)
+        REFERENCES sales.orders(order_id),
+    FOREIGN KEY (product_id)
+        REFERENCES production.products(product_id)
+);
+
+INSERT INTO productions.categories (category_name)
+VALUES
+('Electronics'),
+('Clothing'),
+('Books');
+
+INSERT INTO productions.products (product_name, price, category_id)
+VALUES
+('Laptop', 1200.00, 1),
+('T-Shirt', 25.00, 2),
+('Database Book', 40.00, 3);
+
+INSERT INTO sales.customers (full_name, email)
+VALUES
+('Ahmad Ali', 'ahmad@email.com'),
+('Sara Omar', 'sara@email.com');
+
+INSERT INTO sales.orders (customer_id)
+VALUES
+(1),
+(2);
+
+INSERT INTO sales.order_items (order_id, product_id, quantity, price)
+VALUES
+(1, 1, 1, 1200.00),
+(1, 2, 2, 25.00),
+(2, 3, 1, 40.00);
+
+INSERT INTO sales.order_items (order_id, product_id, quantity, price)
+VALUES
+(1, 1, 1, 1200.00),
+(1, 2, 2, 25.00),
+(2, 3, 1, 40.00);
+
+UPDATE sales.customers
+SET full_name = 'Ahmad Mohammad'
+WHERE customer_id = 1;
+
+DELETE FROM productions.products
+WHERE product_id = 2; "erro"
+
+SELECT * FROM productions.products;
+
+SELECT * FROM sales.customers;
+
+SELECT product_name, price
+FROM productions.products
+WHERE price > 50
+ORDER BY price DESC
+LIMIT 2;
+
+SELECT
+    o.order_id,
+    c.full_name,
+    o.order_date
+FROM sales.orders o
+INNER JOIN sales.customers c
+    ON o.customer_id = c.customer_id;
+
+
+SELECT
+    o.order_id,
+    p.product_name,
+    oi.quantity
+FROM sales.order_items oi
+INNER JOIN sales.orders o
+    ON oi.order_id = o.order_id
+INNER JOIN productions.products p
+    ON oi.product_id = p.product_id;
+
+
+
+SELECT
+    c.full_name,
+    o.order_id
+FROM sales.customers c
+LEFT JOIN sales.orders o
+    ON c.customer_id = o.customer_id;
+
+
+SELECT COUNT(*) AS total_orders
+FROM sales.orders;
+
+SELECT SUM(quantity * price) AS total_sales
+FROM sales.order_items;
+
+SELECT AVG(price) AS avg_product_price
+FROM productions.products;
+
+
+
+
